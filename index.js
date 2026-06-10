@@ -1,0 +1,10 @@
+// INCIO DEL SERVIDOR
+
+require("dotenv").config();
+const app = require("./src/app");
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  `✅ Server Hostedo correctamente en http://localhost:${PORT}`;
+});
