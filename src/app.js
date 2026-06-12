@@ -1,5 +1,5 @@
 const express = require("express");
-const authorsRouter = require("./src/routes/authors.routes");
+const authorsRouter = require("./routes/authors.routes");
 require("dotenv").config();
 
 const app = express();
