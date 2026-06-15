@@ -9,6 +9,6 @@ app.use(express.json());
 
 // RUTAS (ROUTERS)
 app.use("/authors", authorsRouter);
-app.use("/posts", postsRouther);
+app.use("/posts", postsRouter);
 
 module.exports = app;
