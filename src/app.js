@@ -1,6 +1,7 @@
 const express = require("express");
 const authorsRouter = require("./routes/authors.routes");
 const postsRouter = require("./routes/posts.routes");
+const errorHandler = require("./middlewares/errorHandler");
 require("dotenv").config();
 
 const app = express();
