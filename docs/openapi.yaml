@@ -1,0 +1,421 @@
+openapi: 3.0.3
+
+# =========
+#   INFO
+# =========
+info:
+  title: MiniBlog API
+  description: |
+    API REST para gestionar autores (authors) y publicaciones (posts)
+    del servicio MiniBlog de DevSpark.
+    Permite operaciones CRUD sobre ambas entidades, con validaciones
+    básicas y manejo centralizado de errores.
+  version: 1.0.0
+  contact:
+    name: Ciro Castellaro
+
+# =========
+#  SERVERS
+# =========
+servers:
+  - url: http://localhost:3000
+    description: Servidor local de desarrollo
+
+# ==========
+#    TAGS
+# ==========
+tags:
+  - name: Authors
+    description: Operaciones sobre autores
+  - name: Posts
+    description: Operaciones sobre publicaciones
+
+# ========
+#  PATHS
+# ========
+paths:
+  # ---------- COLECCIÓN DE AUTHORS ----------
+  /authors:
+    get:
+      tags: [Authors]
+      summary: Listar todos los autores
+      responses:
+        "200":
+          description: Lista de autores obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Author"
+
+    post:
+      tags: [Authors]
+      summary: Crear un autor nuevo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorInput"
+      responses:
+        "201":
+          description: Autor creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "400":
+          description: Faltan campos obligatorios o el email ya existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------- AUTHOR INDIVIDUAL (por id) ----------
+  /authors/{id}:
+    get:
+      tags: [Authors]
+      summary: Obtener un autor por su ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Autor encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "404":
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      tags: [Authors]
+      summary: Actualizar un autor existente
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorInput"
+      responses:
+        "200":
+          description: Autor actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "400":
+          description: Faltan campos obligatorios o el email ya existe
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags: [Authors]
+      summary: Eliminar un autor
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Autor eliminado correctamente (sin contenido)
+        "404":
+          description: Autor no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------- COLECCIÓN DE POSTS ----------
+  /posts:
+    get:
+      tags: [Posts]
+      summary: Listar todas las publicaciones
+      responses:
+        "200":
+          description: Lista de posts obtenida correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Post"
+
+    post:
+      tags: [Posts]
+      summary: Crear una publicación nueva
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostInput"
+      responses:
+        "201":
+          description: Post creado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: Faltan campos obligatorios (title, content o author_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------- POSTS DE UN AUTHOR ----------
+  /posts/author/{authorId}:
+    get:
+      tags: [Posts]
+      summary: Listar los posts de un autor (con sus datos)
+      description: Devuelve los posts del autor junto con su name y email (via JOIN).
+      parameters:
+        - name: authorId
+          in: path
+          required: true
+          description: ID del autor cuyos posts se quieren listar
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Posts del autor obtenidos correctamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PostWithAuthor"
+        "404":
+          description: No se encontraron posts para este autor
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  # ---------- POST INDIVIDUAL (por id) ----------
+  /posts/{id}:
+    get:
+      tags: [Posts]
+      summary: Obtener un post por su ID
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "200":
+          description: Post encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "404":
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    put:
+      tags: [Posts]
+      summary: Actualizar un post existente
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostUpdateInput"
+      responses:
+        "200":
+          description: Post actualizado correctamente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+        "400":
+          description: Faltan campos obligatorios
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+    delete:
+      tags: [Posts]
+      summary: Eliminar un post
+      parameters:
+        - $ref: "#/components/parameters/IdParam"
+      responses:
+        "204":
+          description: Post eliminado correctamente (sin contenido)
+        "404":
+          description: Post no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+# ===========
+# COMPONENTS
+# ===========
+components:
+  # ---------- PARÁMETROS REUTILIZABLES ----------
+  parameters:
+    IdParam:
+      name: id
+      in: path # el parámetro viene en la URL (/authors/5)
+      required: true
+      description: ID numérico del recurso
+      schema:
+        type: integer
+
+  # ---------- SCHEMAS (moldes de datos) ----------
+  schemas:
+    # Cómo se ve un Author que DEVUELVE la API (con id y created_at)
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Lucas Martinez
+        email:
+          type: string
+          example: lucas.martinez@mail.com
+        bio:
+          type: string
+          example: Desarrollador backend apasionado por PostgreSQL.
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-03-15T10:30:00Z"
+
+    # Cómo se ve el body que RECIBE la API al crear/editar un Author.
+    # No incluye id ni created_at porque esos los genera la base de datos.
+    AuthorInput:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+          example: Lucas Martinez
+        email:
+          type: string
+          example: lucas.martinez@mail.com
+        bio:
+          type: string
+          example: Desarrollador backend apasionado por PostgreSQL.
+
+    # Cómo se ve un Post que DEVUELVE la API
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        author_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Introducción a PostgreSQL
+        content:
+          type: string
+          example: Post introductorio sobre PostgreSQL y sus ventajas.
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-03-15T10:30:00Z"
+
+    # Post + datos del autor (lo que devuelve GET /posts/author/{authorId})
+    PostWithAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        author_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Introducción a PostgreSQL
+        content:
+          type: string
+          example: Post introductorio sobre PostgreSQL.
+        published:
+          type: boolean
+          example: true
+        created_at:
+          type: string
+          format: date-time
+        name:
+          type: string
+          example: Lucas Martinez
+        email:
+          type: string
+          example: lucas.martinez@mail.com
+
+    # Body para CREAR un post (necesita author_id)
+    PostInput:
+      type: object
+      required: [title, content, author_id]
+      properties:
+        author_id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Mi primer post
+        content:
+          type: string
+          example: Contenido del post.
+        published:
+          type: boolean
+          example: false
+
+    # Body para ACTUALIZAR un post (sin author_id, no se puede cambiar el autor)
+    PostUpdateInput:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+          example: Título actualizado
+        content:
+          type: string
+          example: Contenido actualizado.
+        published:
+          type: boolean
+          example: true
+
+    # Molde de los mensajes de error que devuelve tu errorHandler
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Autor no encontrado
