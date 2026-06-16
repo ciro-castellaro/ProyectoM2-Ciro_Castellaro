@@ -18,7 +18,7 @@ async function validateAuthor(req, res, next) {
     if (result.rows.length > 0) {
       return res
         .status(400)
-        .json({ error: "Ya existe un autor con ese email" });
+        .json({ error: "Ya existe una cuenta con ese email" });
     }
   } catch (err) {
     return res.status(500).json({ error: "Error al validar el email" });
