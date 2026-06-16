@@ -28,6 +28,11 @@ const createAuthor = async (req, res) => {
     const newAuthor = await authorsService.createAuthor(name, email, bio);
     res.status(201).json(newAuthor);
   } catch (error) {
+    if (error.code === "23505") {
+      return res
+        .status(400)
+        .json({ error: "Ya existe un autor con ese email" });
+    }
     res.status(500).json({ error: "Error al crear el autor" });
   }
 };
