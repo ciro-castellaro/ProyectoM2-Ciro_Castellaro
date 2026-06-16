@@ -11,4 +11,5 @@ app.use(express.json());
 app.use("/authors", authorsRouter);
 app.use("/posts", postsRouter);
 
+app.use(errorHandler);
 module.exports = app;

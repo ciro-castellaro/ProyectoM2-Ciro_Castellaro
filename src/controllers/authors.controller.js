@@ -1,43 +1,42 @@
 const authorsService = require("../services/authors.service");
+const AppError = require("../utils/AppError");
 
-const getAllAuthors = async (req, res) => {
+const getAllAuthors = async (req, res, next) => {
   try {
     const authors = await authorsService.getAllAuthors();
     res.json(authors);
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener autores" });
+    next(error);
   }
 };
 
-const getAuthorById = async (req, res) => {
+const getAuthorById = async (req, res, next) => {
   const { id } = req.params;
   try {
     const author = await authorsService.getAuthorById(id);
     if (!author) {
-      return res.status(404).json({ error: "Autor no encontrado" });
+      throw new AppError("Autor no encontrado", 404);
     }
     res.json(author);
   } catch (error) {
-    res.status(500).json({ error: "Error al obtener el autor" });
+    next(error);
   }
 };
 
-const createAuthor = async (req, res) => {
+const createAuthor = async (req, res, next) => {
   const { name, email, bio } = req.body;
   try {
     const newAuthor = await authorsService.createAuthor(name, email, bio);
     res.status(201).json(newAuthor);
   } catch (error) {
     if (error.code === "23505") {
-      return res
-        .status(400)
-        .json({ error: "Ya existe un autor con ese email" });
+      return next(new AppError("Ya existe un autor con ese email", 400));
     }
-    res.status(500).json({ error: "Error al crear el autor" });
+    next(error);
   }
 };
 
-const updateAuthor = async (req, res) => {
+const updateAuthor = async (req, res, next) => {
   const { id } = req.params;
   const { name, email, bio } = req.body;
   try {
@@ -48,24 +47,24 @@ const updateAuthor = async (req, res) => {
       bio,
     );
     if (!updatedAuthor) {
-      return res.status(404).json({ error: "Autor no encontrado" });
+      throw new AppError("Autor no encontrado", 404);
     }
     res.json(updatedAuthor);
   } catch (error) {
-    res.status(500).json({ error: "Error al actualizar el autor" });
+    next(error);
   }
 };
 
-const deleteAuthor = async (req, res) => {
+const deleteAuthor = async (req, res, next) => {
   const { id } = req.params;
   try {
     const deletedAuthor = await authorsService.deleteAuthor(id);
     if (!deletedAuthor) {
-      return res.status(404).json({ error: "Autor no encontrado" });
+      throw new AppError("Autor no encontrado", 404);
     }
-    res.status(204).json({ message: "Autor eliminado", autor: deletedAuthor });
+    res.status(204).send();
   } catch (error) {
-    res.status(500).json({ error: "Error al eliminar el autor" });
+    next(error);
   }
 };
 
